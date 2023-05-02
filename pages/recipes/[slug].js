@@ -1,12 +1,13 @@
 import Image from "next/image";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
-import { client } from "../../contentful_db/connection.js";
+import { client } from "../../contentful_db/connection";
+import Skeleton from "../../components/Skeleton";
 
 export async function getStaticPaths() {
   const response = await client.getEntries({ content_type: "recipe" });
 
   return {
-    fallback: false,
+    fallback: true,
     paths: response.items.map((item) => ({
       params: { slug: item.fields.slug },
     })),
@@ -28,6 +29,8 @@ export async function getStaticProps(context) {
 }
 
 export default function RecipeDetails({ recipe }) {
+  if (!recipe) return <Skeleton />;
+
   const {
     title,
     cookingTime,
