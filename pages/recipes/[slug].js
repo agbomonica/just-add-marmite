@@ -1,13 +1,12 @@
-import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
-
-import { client } from "../../contentful_db/connection";
 import Image from "next/image";
+import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
+import { client } from "../../contentful_db/connection.js";
 
 export async function getStaticPaths() {
   const response = await client.getEntries({ content_type: "recipe" });
 
   return {
-    fallback: true,
+    fallback: false,
     paths: response.items.map((item) => ({
       params: { slug: item.fields.slug },
     })),
@@ -23,6 +22,7 @@ export async function getStaticProps(context) {
   });
 
   return {
+    revalidate: 1,
     props: { recipe: items[0] },
   };
 }
@@ -33,9 +33,7 @@ export default function RecipeDetails({ recipe }) {
     cookingTime,
     method,
     ingredients,
-    featuredImage: {
-      fields: { file },
-    },
+    featuredImage: { fields },
   } = recipe.fields;
 
   return (
@@ -43,9 +41,9 @@ export default function RecipeDetails({ recipe }) {
       <div className="banner">
         <Image
           // absolute url
-          src={`https:${file.url}`}
-          width={file.details.image.width}
-          height={file.details.image.height}
+          src={`https:${fields.file.url}`}
+          width={fields.file.details.image.width}
+          height={fields.file.details.image.height}
           alt={title}
         />
         <h2>{title}</h2>
