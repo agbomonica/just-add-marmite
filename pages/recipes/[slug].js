@@ -7,7 +7,7 @@ export async function getStaticPaths() {
   const response = await client.getEntries({ content_type: "recipe" });
 
   return {
-    fallback: true,
+    fallback: false,
     paths: response.items.map((item) => ({
       params: { slug: item.fields.slug },
     })),
