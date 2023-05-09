@@ -1,35 +1,13 @@
 import Image from "next/image";
+
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { client } from "../../contentful_db/connection";
+
 import Skeleton from "../../components/Skeleton";
 
-export async function getStaticPaths() {
-  const response = await client.getEntries({ content_type: "recipe" });
-
-  return {
-    fallback: true,
-    paths: response.items.map((item) => ({
-      params: { slug: item.fields.slug },
-    })),
-  };
-}
-
-export async function getStaticProps(context) {
-  const slug = context.params.slug;
-  const { items } = await client.getEntries({
-    content_type: "recipe",
-    // SELECT * from contentful WHERE 'fields.slug'=slug
-    "fields.slug": slug,
-  });
-
-  return {
-    revalidate: 1,
-    props: { recipe: items[0] },
-  };
-}
-
 export default function RecipeDetails({ recipe }) {
-  if (!recipe) return <Skeleton />;
+  // fallback version of RecipeDetails page
+  if (router.isFallback) return <Skeleton />;
 
   const {
     title,
@@ -95,4 +73,32 @@ export default function RecipeDetails({ recipe }) {
         }`}</style>
     </div>
   );
+}
+
+export async function getStaticPaths() {
+  const response = await client.getEntries({ content_type: "recipe" });
+
+  return {
+    fallback: true,
+    paths: response.items.map((item) => ({
+      params: { slug: item.fields.slug },
+    })),
+  };
+}
+
+export async function getStaticProps(context) {
+  const slug = context.params.slug;
+
+  const { items } = await client.getEntries({
+    content_type: "recipe",
+    // SELECT * from contentful WHERE 'fields.slug'=slug
+    "fields.slug": slug,
+  });
+
+  console.log(items.length);
+
+  return {
+    revalidate: 1,
+    props: { recipe: items[0] },
+  };
 }

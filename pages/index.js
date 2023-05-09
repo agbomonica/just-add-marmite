@@ -7,7 +7,7 @@ export async function getStaticProps() {
   const response = await client.getEntries({ content_type: "recipe" });
 
   return {
-    revalidate: 1,
+    revalidate: 1, // ISR
     props: {
       recipes: response.items,
     },
